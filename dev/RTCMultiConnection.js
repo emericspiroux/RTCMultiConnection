@@ -1008,7 +1008,6 @@
             connection.renegotiate(remoteUserId);
             return;
         }
-        connection.session = Object.asssign(connection.session, session)
 
         if (session.audio || session.video || session.screen) {
             if (session.screen) {
