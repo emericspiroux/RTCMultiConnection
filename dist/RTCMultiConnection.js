@@ -3697,25 +3697,25 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                         track.enabled = true;
                     });
 
-                    // make sure that video unmute doesn't affects audio
-                    if (typeof type !== 'undefined' && type == 'video' && connection.streamEvents[stream.streamid].isAudioMuted) {
-                        (function looper(times) {
-                            if (!times) {
-                                times = 0;
-                            }
+                    // // make sure that video unmute doesn't affects audio
+                    // if (typeof type !== 'undefined' && type == 'video' && connection.streamEvents[stream.streamid].isAudioMuted) {
+                    //     (function looper(times) {
+                    //         if (!times) {
+                    //             times = 0;
+                    //         }
 
-                            times++;
+                    //         times++;
 
-                            // check until five-seconds
-                            if (times < 100 && connection.streamEvents[stream.streamid].isAudioMuted) {
-                                stream.mute('audio');
+                    //         // check until five-seconds
+                    //         if (times < 100 && connection.streamEvents[stream.streamid].isAudioMuted) {
+                    //             stream.mute('audio');
 
-                                setTimeout(function() {
-                                    looper(times);
-                                }, 50);
-                            }
-                        })();
-                    }
+                    //             setTimeout(function() {
+                    //                 looper(times);
+                    //             }, 50);
+                    //         }
+                    //     })();
+                    // }
                 }
 
                 if (typeof syncAction == 'undefined' || syncAction == true) {
