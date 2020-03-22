@@ -2725,8 +2725,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 event.stream.isScreen = streamToShare.isScreen;
             } else {
                 event.stream.isVideo = !!getTracks(event.stream, 'video').length;
-                event.stream.isAudio = !event.stream.isVideo;
-                event.stream.isScreen = false;
+                event.stream.isAudio = event.stream.isAudio;
+                event.stream.isScreen = event.stream.isScreen;
             }
 
             event.stream.streamid = event.stream.id;
@@ -3573,6 +3573,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     navigator.mediaDevices.getDisplayMedia(options.localMediaConstraints).then(function(stream) {
                         stream.streamid = stream.streamid || stream.id || getRandomString();
                         stream.idInstance = idInstance;
+                        stream.isScreen = true
 
                         streaming(stream);
                     }).catch(function(error) {
@@ -3582,7 +3583,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     navigator.getDisplayMedia(options.localMediaConstraints).then(function(stream) {
                         stream.streamid = stream.streamid || stream.id || getRandomString();
                         stream.idInstance = idInstance;
-
+                        stream.isScreen = true
                         streaming(stream);
                     }).catch(function(error) {
                         options.onLocalMediaError(error, options.localMediaConstraints);
@@ -5053,6 +5054,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 return;
             }
 
+            connection.session  = Object.assign(connection.session, session)
+
             if (session.audio || session.video || session.screen) {
                 if (session.screen) {
                     if (DetectRTC.browser.name === 'Edge') {
@@ -5064,9 +5067,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                             mPeer.onGettingLocalMedia(screen);
 
                             if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
-                                connection.invokeGetUserMedia(null, function(stream) {
-                                    gumCallback(stream);
-                                });
+                                connection.invokeGetUserMedia(null, gumCallback);
                             } else {
                                 gumCallback(screen);
                             }
@@ -5114,7 +5115,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             }
 
             getUserMediaHandler({
-                onGettingLocalMedia: function(stream) {
+                onGettingLocalMedia: (stream) => {
                     var videoConstraints = localMediaConstraints.video;
                     if (videoConstraints) {
                         if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
@@ -5125,8 +5126,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     }
 
                     if (!stream.isScreen) {
-                        stream.isVideo = !!getTracks(stream, 'video').length;
-                        stream.isAudio = !stream.isVideo && getTracks(stream, 'audio').length;
+                        stream.isVideo = session.video && !!getTracks(stream, 'video').length;
+                        stream.isAudio = session.audio && !!getTracks(stream, 'audio').length;
                     }
 
                     mPeer.onGettingLocalMedia(stream, function() {
