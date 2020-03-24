@@ -5115,7 +5115,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             }
 
             getUserMediaHandler({
-                onGettingLocalMedia: (stream) => {
+                onGettingLocalMedia: function(stream) {
                     var videoConstraints = localMediaConstraints.video;
                     if (videoConstraints) {
                         if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
