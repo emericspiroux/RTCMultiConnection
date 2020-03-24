@@ -2576,6 +2576,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             peer.getRemoteStreams = function() {
                 var stream = new MediaStream();
                 peer.getReceivers().forEach(function(receiver) {
+                    console.log("On getting receiver :", receiver)
                     stream.addTrack(receiver.track);
                 });
                 return [stream];
@@ -2586,6 +2587,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             peer.getLocalStreams = function() {
                 var stream = new MediaStream();
                 peer.getSenders().forEach(function(sender) {
+                    console.log("On getting Sender :", sender)
                     stream.addTrack(sender.track);
                 });
                 return [stream];
@@ -2732,6 +2734,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             event.stream.streamid = event.stream.id;
 
             allRemoteStreams[event.stream.id] = event.stream;
+            console.log("Receive stream :", event.stream.getTracks())
             config.onRemoteStream(event.stream);
 
             event.stream.getTracks().forEach(function(track) {
@@ -5126,8 +5129,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     }
 
                     if (!stream.isScreen) {
-                        stream.isVideo = session.video && !!getTracks(stream, 'video').length;
-                        stream.isAudio = session.audio && !!getTracks(stream, 'audio').length;
+                        stream.isVideo = !!getTracks(stream, 'video').length;
+                        stream.isAudio = !stream.isVideo && getTracks(stream, 'audio').length;
                     }
 
                     mPeer.onGettingLocalMedia(stream, function() {
