@@ -5126,8 +5126,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     }
 
                     if (!stream.isScreen) {
-                        stream.isVideo = session.video && !!getTracks(stream, 'video').length;
-                        stream.isAudio = session.audio && !!getTracks(stream, 'audio').length;
+                        stream.isVideo = !!getTracks(stream, 'video').length;
+                        stream.isAudio = !stream.isVideo && getTracks(stream, 'audio').length;
                     }
 
                     mPeer.onGettingLocalMedia(stream, function() {
