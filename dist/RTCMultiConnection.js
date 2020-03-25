@@ -729,14 +729,17 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             if (message.type && message.sdp) {
                 if (message.type == 'answer') {
                     if (connection.peers[remoteUserId]) {
+                        // console.log("Add remote sdp", message)
                         connection.peers[remoteUserId].addRemoteSdp(message);
                     }
                 }
 
                 if (message.type == 'offer') {
                     if (message.renegotiatingPeer) {
+                        // console.log("renegotiatingPeer", message)
                         this.renegotiatePeer(remoteUserId, null, message);
                     } else {
+                        // console.log("createAnsweringPeer", message)
                         this.createAnsweringPeer(message, remoteUserId);
                     }
                 }
@@ -2481,7 +2484,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
         var connection = config.rtcMultiConnection;
 
-        this.extra = config.remoteSdp ? config.remoteSdp.extra : connection.extra;
+        this.extra = config.remoteSdp && config.remoteSdp.extra;
         this.userid = config.userid;
         this.streams = [];
         this.channels = config.channels || [];
@@ -4116,12 +4119,18 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
             connection.setStreamEndHandler(stream, 'remote-stream');
 
-            getRMCMediaElement(stream, function(mediaElement) {
+            getRMCMediaElement(stream, async function(mediaElement) {
                 mediaElement.id = stream.streamid;
 
                 if (typeof StreamsHandler !== 'undefined') {
                     StreamsHandler.setHandlers(stream, false, connection);
                 }
+
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                while(!connection.peers[remoteUserId].extra) {await sleep(100);}
 
                 connection.streamEvents[stream.streamid] = {
                     stream: stream,
