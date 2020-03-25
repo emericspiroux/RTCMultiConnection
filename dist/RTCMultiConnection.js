@@ -2093,23 +2093,25 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             throw 'hark.js not found.';
         }
 
-        hark(streamEvent.stream, {
-            onspeaking: function() {
-                connection.onspeaking(streamEvent);
-            },
-            onsilence: function() {
-                connection.onsilence(streamEvent);
-            },
-            onvolumechange: function(volume, threshold) {
-                if (!connection.onvolumechange) {
-                    return;
-                }
-                connection.onvolumechange(merge({
-                    volume: volume,
-                    threshold: threshold
-                }, streamEvent));
+        let speech = hark(streamEvent.stream);
+
+        speech.on('speaking', function() {
+            connection.onspeaking(streamEvent);
+        })
+
+        speech.on('stopped_speaking', function() {
+            connection.onsilence(streamEvent);
+        })
+
+        speech.on('volume_change', function(volume, threshold) {
+            if (!connection.onvolumechange) {
+                return;
             }
-        });
+            connection.onvolumechange({
+                volume: volume,
+                threshold: threshold
+            }, streamEvent);
+        })
     }
 
     function setMuteHandlers(connection, streamEvent) {
