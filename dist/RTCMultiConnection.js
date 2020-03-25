@@ -2083,7 +2083,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
     function setHarkEvents(connection, streamEvent) {
         if (!streamEvent.stream || !getTracks(streamEvent.stream, 'audio').length) return;
-
         if (!connection || !streamEvent) {
             throw 'Both arguments are required.';
         }
@@ -2092,8 +2091,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             throw 'hark.js not found.';
         }
 
-        let speech = hark(streamEvent.stream);
-
+        var speech = new hark(streamEvent.stream);
         speech.on('speaking', function() {
             if (!connection.onspeaking) return
             connection.onspeaking(streamEvent);
@@ -4101,7 +4099,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
                     connection.onstream(connection.streamEvents[stream.streamid]);
                 } catch (e) {
-                    //
+                    console.error(e)
                 }
 
                 callback();
@@ -4137,9 +4135,14 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     streamid: stream.streamid
                 };
 
-                setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
+                try {
+                    setHarkEvents(connection, connection.streamEvents[stream.streamid]);
+                    setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
+                    connection.onstream(connection.streamEvents[stream.streamid]);
+                } catch (e) {
+                    console.error(e)
+                }
 
-                connection.onstream(connection.streamEvents[stream.streamid]);
             }, connection);
         };
 
