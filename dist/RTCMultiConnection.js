@@ -2088,10 +2088,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             throw 'Both arguments are required.';
         }
 
-        if (!connection.onspeaking || !connection.onsilence) {
-            return;
-        }
-
         if (typeof hark === 'undefined') {
             throw 'hark.js not found.';
         }
@@ -2099,17 +2095,17 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         let speech = hark(streamEvent.stream);
 
         speech.on('speaking', function() {
+            if (!connection.onspeaking) return
             connection.onspeaking(streamEvent);
         })
 
         speech.on('stopped_speaking', function() {
+            if (!connection.onsilence) return
             connection.onsilence(streamEvent);
         })
 
         speech.on('volume_change', function(volume, threshold) {
-            if (!connection.onvolumechange) {
-                return;
-            }
+            if (!connection.onvolumechange) return
             connection.onvolumechange({
                 volume: volume,
                 threshold: threshold
