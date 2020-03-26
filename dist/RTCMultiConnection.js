@@ -271,7 +271,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             if (message.message.newParticipant) {
                 if (message.message.newParticipant == connection.userid) return;
                 if (!!connection.peers[message.message.newParticipant]) return;
-
                 mPeer.createNewPeer(message.message.newParticipant, message.message.userPreferences || {
                     localPeerSdpConstraints: {
                         OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
@@ -2091,7 +2090,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             throw 'hark.js not found.';
         }
 
-        var speech = new hark(streamEvent.stream);
+        var speech = new hark(streamEvent.stream, {interval: 100});
         speech.on('speaking', function() {
             if (!connection.onspeaking) return
             connection.onspeaking(streamEvent);
@@ -3596,7 +3595,14 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             navigator.mediaDevices.getUserMedia(options.localMediaConstraints).then(function(stream) {
                 stream.streamid = stream.streamid || stream.id || getRandomString();
                 stream.idInstance = idInstance;
-
+                
+                if (options.session)
+                    stream.getTracks().forEach((track) => {
+                        if (!options.session.audio && track.kind === "audio")
+                            track.enabled =  false
+                        if (!options.session.video && track.kind === "video")
+                            track.enabled =  false
+                    })
                 streaming(stream);
             }).catch(function(error) {
                 options.onLocalMediaError(error, options.localMediaConstraints);
@@ -5125,6 +5131,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             }
 
             getUserMediaHandler({
+                session: session,
                 onGettingLocalMedia: function(stream) {
                     var videoConstraints = localMediaConstraints.video;
                     if (videoConstraints) {
