@@ -3597,7 +3597,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 stream.idInstance = idInstance;
                 
                 if (options.session)
-                    stream.getTracks().forEach((track) => {
+                    stream.getTracks().forEach(function(track) {
                         if (!options.session.audio && track.kind === "audio")
                             track.enabled =  false
                         if (!options.session.video && track.kind === "video")
