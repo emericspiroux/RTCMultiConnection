@@ -112,5 +112,5 @@
     "build": "babel dist/RTCMultiConnection.js -d lib && minify lib/RTCMultiConnection.js --out-file lib/RTCMultiConnection.min.js"
   },
   "tonicExampleFilename": "npm-test.js",
-  "version": "3.7.3"
+  "version": "3.7.4"
 }
