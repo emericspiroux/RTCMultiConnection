@@ -48,8 +48,6 @@
   "deprecated": false,
   "description": "RTCMultiConnection is a WebRTC JavaScript wrapper library runs top over RTCPeerConnection API to support all possible peer-to-peer features.",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
     "@babel/plugin-transform-arrow-functions": "^7.8.3",
     "@babel/plugin-transform-async-to-generator": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
@@ -99,7 +97,7 @@
     "muaz-khan"
   ],
   "license": "MIT",
-  "main": "./lib/RTCMultiConnection.min.js",
+  "main": "./dist/RTCMultiConnection.js",
   "name": "rtcmulticonnection",
   "preferGlobal": false,
   "repository": {
@@ -112,5 +110,5 @@
     "build": "babel dist/RTCMultiConnection.js -d lib && minify lib/RTCMultiConnection.js --out-file lib/RTCMultiConnection.min.js"
   },
   "tonicExampleFilename": "npm-test.js",
-  "version": "3.7.4"
+  "version": "3.7.5"
 }

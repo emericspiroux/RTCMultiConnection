@@ -4119,36 +4119,38 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
             connection.setStreamEndHandler(stream, 'remote-stream');
 
-            getRMCMediaElement(stream, async function(mediaElement) {
+            getRMCMediaElement(stream, function(mediaElement) {
                 mediaElement.id = stream.streamid;
 
                 if (typeof StreamsHandler !== 'undefined') {
                     StreamsHandler.setHandlers(stream, false, connection);
                 }
 
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
+                function waitingExtra() {
+                    if (!connection.peers[remoteUserId].extra) setTimeout(waitingExtra, 200)
+                    connectRemote()
                 }
 
-                while(!connection.peers[remoteUserId].extra) {await sleep(100);}
-
-                connection.streamEvents[stream.streamid] = {
-                    stream: stream,
-                    type: 'remote',
-                    userid: remoteUserId,
-                    extra: connection.peers[remoteUserId] ? connection.peers[remoteUserId].extra : {},
-                    mediaElement: mediaElement,
-                    streamid: stream.streamid
-                };
-
-                try {
-                    setHarkEvents(connection, connection.streamEvents[stream.streamid]);
-                    setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
-                    connection.onstream(connection.streamEvents[stream.streamid]);
-                } catch (e) {
-                    console.error(e)
+                function connectRemote() {
+                    connection.streamEvents[stream.streamid] = {
+                        stream: stream,
+                        type: 'remote',
+                        userid: remoteUserId,
+                        extra: connection.peers[remoteUserId] ? connection.peers[remoteUserId].extra : {},
+                        mediaElement: mediaElement,
+                        streamid: stream.streamid
+                    };
+    
+                    try {
+                        setHarkEvents(connection, connection.streamEvents[stream.streamid]);
+                        setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
+                        connection.onstream(connection.streamEvents[stream.streamid]);
+                    } catch (e) {
+                        console.error(e)
+                    }
                 }
 
+                waitingExtra()
             }, connection);
         };
 
