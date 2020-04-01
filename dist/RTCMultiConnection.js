@@ -525,14 +525,19 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     if (!that[participant].channels.length) {
                         connection.peers[participant].createDataChannel();
                         connection.renegotiate(participant);
-                        setTimeout(function() {
-                            that[participant].channels.forEach(function(channel) {
-                                channel.send(data);
-                            });
-                        }, 3000);
+                        function waitChannel(iteration) {
+                            if (iteration > 4) return
+                            setTimeout(function() {
+                                if (!(that[participant] && Array.isArray(that[participant].channels)))
+                                    return waitChannel(iteration + 1)
+                                that[participant].channels.forEach(function(channel) {
+                                    channel.send(data);
+                                });
+                            }, 3000);
+                        }
+                        waitChannel(0)
                         return;
                     }
-
                     that[participant].channels.forEach(function(channel) {
                         channel.send(data);
                     });
