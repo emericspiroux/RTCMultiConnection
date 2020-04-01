@@ -733,17 +733,14 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             if (message.type && message.sdp) {
                 if (message.type == 'answer') {
                     if (connection.peers[remoteUserId]) {
-                        // console.log("Add remote sdp", message)
                         connection.peers[remoteUserId].addRemoteSdp(message);
                     }
                 }
 
                 if (message.type == 'offer') {
                     if (message.renegotiatingPeer) {
-                        // console.log("renegotiatingPeer", message)
                         this.renegotiatePeer(remoteUserId, null, message);
                     } else {
-                        // console.log("createAnsweringPeer", message)
                         this.createAnsweringPeer(message, remoteUserId);
                     }
                 }
@@ -2579,7 +2576,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             peer.getRemoteStreams = function() {
                 var stream = new MediaStream();
                 peer.getReceivers().forEach(function(receiver) {
-                    stream.addTrack(receiver.track);
+                    stream.addTrack(receiver.track, stream);
                 });
                 return [stream];
             };
@@ -2589,7 +2586,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             peer.getLocalStreams = function() {
                 var stream = new MediaStream();
                 peer.getSenders().forEach(function(sender) {
-                    stream.addTrack(sender.track);
+                    stream.addTrack(sender.track, stream);
                 });
                 return [stream];
             };
@@ -2769,6 +2766,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         }
 
         this.addRemoteCandidate = function(remoteCandidate) {
+            if (!remoteCandidate) return
             peer.addIceCandidate(new RTCIceCandidate(remoteCandidate));
         };
 
@@ -2942,7 +2940,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 if (DetectRTC.browser.name !== 'Safari') {
                     localSdp.sdp = connection.processSdp(localSdp.sdp);
                 }
-                peer.setLocalDescription(localSdp).then(function() {
+                peer && peer.setLocalDescription(localSdp).then(function() {
                     if (!connection.trickleIce) return;
 
                     config.onLocalSdp({
@@ -4132,7 +4130,10 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 }
 
                 function waitingExtra() {
-                    if (!connection.peers[remoteUserId].extra) setTimeout(waitingExtra, 200)
+                    if (!(connection.peers[remoteUserId] 
+                        && connection.peers[remoteUserId].extra 
+                        && connection.peers[remoteUserId].extra.user)) 
+                        return setTimeout(waitingExtra, 200)
                     connectRemote()
                 }
 
