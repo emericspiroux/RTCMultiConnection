@@ -5731,7 +5731,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         };
 
         connection.updateExtraData = function() {
-            connection.socket.emit('extra-data-updated', connection.extra);
+            if (connection && connection.socket)
+                connection.socket.emit('extra-data-updated', connection.extra);
         };
 
         connection.enableScalableBroadcast = false;
