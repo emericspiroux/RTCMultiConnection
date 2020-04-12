@@ -4211,10 +4211,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
         mPeer.onUserLeft = onUserLeft;
         mPeer.disconnectWith = function(remoteUserId, callback) {
-            if (connection.socket) {
+            if (connection.socket)
                 connection.socket.emit('disconnect-with', remoteUserId, callback || function() {});
-            }
-
             connection.deletePeer(remoteUserId);
         };
 
@@ -4354,7 +4352,9 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
             if (!!connection.peers[remoteUserId]) {
                 connection.peers[remoteUserId].streams.forEach(function(stream) {
-                    stream.stop();
+                    stream.getTracks().forEach((track) => {
+                        track.stop();
+                    })
                 });
 
                 var peer = connection.peers[remoteUserId].peer;
@@ -4368,6 +4368,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     connection.peers[remoteUserId].peer = null;
                     delete connection.peers[remoteUserId];
                 }
+            } else {
+                console.log("Peer connection doesn't exist :", remoteUserId)
             }
         }
 
