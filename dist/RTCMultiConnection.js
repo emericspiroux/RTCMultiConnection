@@ -4352,7 +4352,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
             if (!!connection.peers[remoteUserId]) {
                 connection.peers[remoteUserId].streams.forEach(function(stream) {
-                    stream.getTracks().forEach((track) => {
+                    stream.getTracks().forEach(function (track) {
                         track.stop();
                     })
                 });
