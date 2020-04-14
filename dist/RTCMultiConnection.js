@@ -1490,7 +1490,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     urls: 'stun:stun.l.google.com:19302'
                 }]
             };
-
             var pc = new RTCPeerConnection(servers, peerConfig);
 
             if (stream) {
@@ -2362,54 +2361,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         });
     }
 
-    function isUnifiedPlanSupportedDefault() {
-        var canAddTransceiver = false;
-
-        try {
-            if (typeof RTCRtpTransceiver === 'undefined') return false;
-            if (!('currentDirection' in RTCRtpTransceiver.prototype)) return false;
-
-            var tempPc = new RTCPeerConnection();
-
-            try {
-                tempPc.addTransceiver('audio');
-                canAddTransceiver = true;
-            } catch (e) {}
-
-            tempPc.close();
-        } catch (e) {
-            canAddTransceiver = false;
-        }
-
-        return canAddTransceiver && isUnifiedPlanSuppored();
-    }
-
-    function isUnifiedPlanSuppored() {
-        var isUnifiedPlanSupported = false;
-
-        try {
-            var pc = new RTCPeerConnection({
-                sdpSemantics: 'unified-plan'
-            });
-
-            try {
-                var config = pc.getConfiguration();
-                if (config.sdpSemantics == 'unified-plan')
-                    isUnifiedPlanSupported = true;
-                else if (config.sdpSemantics == 'plan-b')
-                    isUnifiedPlanSupported = false;
-                else
-                    isUnifiedPlanSupported = false;
-            } catch (e) {
-                isUnifiedPlanSupported = false;
-            }
-        } catch (e) {
-            isUnifiedPlanSupported = false;
-        }
-
-        return isUnifiedPlanSupported;
-    }
-
     // ios-hacks.js
 
     function setCordovaAPIs() {
@@ -2558,15 +2509,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
                 peer = new RTCPeerConnection(params, connection.optionalArgument);
             } catch (e) {
-                try {
-                    var params = {
-                        iceServers: connection.iceServers
-                    };
-
-                    peer = new RTCPeerConnection(params);
-                } catch (e) {
-                    peer = new RTCPeerConnection();
-                }
+                console.log("Error peer connection rtcmulticonnection :", e)
             }
         } else {
             peer = config.peerRef;
@@ -4731,10 +4674,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         };
 
         connection.processSdp = function(sdp) {
-            // ignore SDP modification if unified-pan is supported
-            if (isUnifiedPlanSupportedDefault()) {
-                return sdp;
-            }
+            return sdp;
 
             if (DetectRTC.browser.name === 'Safari') {
                 return sdp;
@@ -4902,8 +4842,8 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
         connection.sdpSemantics = null; // "unified-plan" or "plan-b", ref: webrtc.org/web-apis/chrome/unified-plan/
         connection.iceCandidatePoolSize = null; // 0
-        connection.bundlePolicy = null; // max-bundle
-        connection.rtcpMuxPolicy = null; // "require" or "negotiate"
+        connection.bundlePolicy = "max-bundle"; // max-bundle
+        connection.rtcpMuxPolicy = "negotiate"; // "require" or "negotiate"
         connection.iceTransportPolicy = null; // "relay" or "all"
         connection.optionalArgument = {
             optional: [{
